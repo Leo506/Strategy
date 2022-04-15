@@ -3,33 +3,37 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
-public class Test : MonoBehaviour
+namespace TestScripts
 {
-    [SerializeField] Tilemap tilemap;
-    [SerializeField] PathFinder finder;
-    [SerializeField] Transform unit;
-    [SerializeField] Vector3Int endPoint;
 
-    // Start is called before the first frame update
-    void Start()
+    public class Test : MonoBehaviour
     {
-        var path = finder.GetPath(unit.position);
-        var current = path[endPoint];
-        Debug.Log(current);
-        while (current != null)
+        [SerializeField] Tilemap tilemap;
+        [SerializeField] PathFinder finder;
+        [SerializeField] Transform unit;
+        [SerializeField] Vector3Int endPoint;
+
+        // Start is called before the first frame update
+        void Start()
         {
-            current = path[current.Value];
+            var path = finder.GetPath(unit.position, endPoint);
+            var current = path[endPoint];
             Debug.Log(current);
+            while (current != null)
+            {
+                current = path[current.Value];
+                Debug.Log(current);
+            }
         }
-    }
 
-    // Update is called once per frame
-    void Update()
-    {
-        if (Input.GetMouseButtonDown(0))
+        // Update is called once per frame
+        void Update()
         {
-            var worldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            Debug.Log(tilemap.WorldToCell(worldPos));
+            if (Input.GetMouseButtonDown(0))
+            {
+                var worldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                Debug.Log(tilemap.WorldToCell(worldPos));
+            }
         }
     }
 }

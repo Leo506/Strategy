@@ -8,7 +8,7 @@ public class PathFinder : MonoBehaviour
 {
     [SerializeField] Tilemap tilemap;
 
-    public Dictionary<Vector3Int, Vector3Int?> GetPath(Vector3 startPos)
+    public Dictionary<Vector3Int, Vector3Int?> GetPath(Vector3 startPos, Vector3 endPos)
     {
         Queue<Vector3Int> frontier = new Queue<Vector3Int>();
         frontier.Enqueue(tilemap.WorldToCell(startPos));
@@ -16,10 +16,15 @@ public class PathFinder : MonoBehaviour
         Dictionary<Vector3Int, Vector3Int?> cameFrom = new Dictionary<Vector3Int, Vector3Int?>();
         cameFrom.Add(tilemap.WorldToCell(startPos), null);
 
+        Vector3Int endPoint = tilemap.WorldToCell(endPos);
+
         while (frontier.Count > 0)
         {
             Vector3Int currentPoint = frontier.Dequeue();
-            //Debug.Log("Current point: " + currentPoint);
+
+            if (currentPoint == endPoint)
+                break;
+
             foreach (var item in GetNeighbors(currentPoint))
             {
                 if (!cameFrom.ContainsKey(item))
