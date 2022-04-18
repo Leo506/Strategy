@@ -6,47 +6,58 @@ using UnityEngine.Tilemaps;
 
 public class MovementController : MonoBehaviour
 {
-    [SerializeField] Tilemap tilemap;
-    [SerializeField] PathFinder finder;
-    [SerializeField] Unit unit;
+    [SerializeField] PathController pathController;
+    [SerializeField] SelectObjects select;
 
-    private void Update()
+    private void Awake()
     {
-        if (Input.GetMouseButtonDown(0))
-        {
-            var worldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-
-            Debug.Log("World pos: " + worldPos + " Tilemap pos: " + tilemap.WorldToCell(worldPos));
-
-            Vector3Int end = tilemap.WorldToCell(worldPos);
-            end = new Vector3Int(end.x, end.y, 0);
-
-            var path = Reverse(finder.GetPath(unit.gameObject.transform.position, worldPos), end);
-            unit.Move(path);
-        }
+        PlayerInput.OnInputEvent += MoveUnits;
     }
 
-    private List<Vector3> Reverse(Dictionary<Vector3Int, Vector3Int?> path, Vector3Int endPos)
+    private void OnDestroy()
     {
-        List<Vector3Int> tempRes = new List<Vector3Int>();
+        PlayerInput.OnInputEvent -= MoveUnits;
+    }
 
-        Vector3Int? current = endPos;
-        tempRes.Add(current.Value);
-
-        current = path[current.Value];
-
-        while(current != null)
+    private void MoveUnits(Vector3 endPos)
+    {
+        var units = select.GetSelectObj();
+        int nearUnitIndex = 0;
+        for (int i = 1; i < units.Count; i++) 
         {
-            tempRes.Add(current.Value);
-            current = path[current.Value];
+            if (Vector3.Distance(endPos, units[i].transform.position) < Vector3.Distance(endPos, units[nearUnitIndex].transform.position))
+                nearUnitIndex = i;
         }
 
-        List<Vector3> result = new List<Vector3>();
-        for (int i = tempRes.Count - 1; i >= 0; i--)
-        {
-            result.Add(tilemap.CellToWorld(tempRes[i]));
-        }
+        if (units.Count == 0)
+            return;
 
-        return result;
+        var path = pathController.GetPath(units[nearUnitIndex].transform.position, endPos);
+
+        StartCoroutine(Movement(path, units, nearUnitIndex));
+    }
+
+    IEnumerator Movement(List<Vector3> path, List<GameObject> units, int unitIndex)
+    {
+        Debug.Log("Movement!!!");
+        int pathPointIndex = 0;
+        var dir = (path[pathPointIndex] - units[unitIndex].transform.position).normalized;
+        Debug.Log("Current target: " + path[pathPointIndex] + " Dir: " + dir);
+
+        while (pathPointIndex != path.Count)
+        {
+            foreach (var unit in units)
+                unit.transform.Translate(dir * Time.deltaTime * 10);
+
+            if (Vector3.Distance(path[pathPointIndex], units[unitIndex].transform.position) <= 0.1f)
+            {
+                pathPointIndex++;
+
+                if (pathPointIndex != path.Count)
+                    dir = (path[pathPointIndex] - units[unitIndex].transform.position).normalized;
+            }
+
+            yield return null;
+        }
     }
 }

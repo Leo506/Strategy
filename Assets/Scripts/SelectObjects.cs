@@ -14,6 +14,12 @@ public class SelectObjects : MonoBehaviour
     private Vector2 startPos;
     private Vector2 endPos;
 
+
+    public List<GameObject> GetSelectObj()
+    {
+        return selectUnits;
+    }
+
     private void Awake()
     {
         selectUnits = new List<GameObject>();
