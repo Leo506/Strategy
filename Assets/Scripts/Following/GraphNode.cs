@@ -7,16 +7,20 @@ namespace Following
 
     public class GraphNode : MonoBehaviour, IGraph
     {
-        [SerializeField] List<Transform> neighnbours;
+        [SerializeField] List<GraphNode> neighnbours;
 
-        public List<Vector2> GetNeighnbours()
+        public List<IGraph> GetNeighnbours()
         {
-            List<Vector2> toReturn = new List<Vector2>();
-            foreach (var item in neighnbours)
-            {
-                toReturn.Add(item.position);
-            }
+            List<IGraph> toReturn = new List<IGraph>();
+            foreach (GraphNode node in neighnbours)
+                toReturn.Add(node as IGraph);
+            
             return toReturn;
+        }
+
+        public Vector2 GetPosition()
+        {
+            return this.transform.position;
         }
 
         private void OnDrawGizmos()
@@ -26,7 +30,7 @@ namespace Following
 
             foreach (var item in neighnbours)
             {
-                Gizmos.DrawLine(transform.position, item.position);
+                Gizmos.DrawLine(transform.position, item.GetPosition());
             }
         }
     }

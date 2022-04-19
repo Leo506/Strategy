@@ -7,6 +7,8 @@ namespace Following
 
     public interface IGraph
     {
-        List<Vector2> GetNeighnbours();
+        List<IGraph> GetNeighnbours();
+
+        Vector2 GetPosition();
     }
 }
